@@ -1,14 +1,16 @@
-import { Actor, CollisionType, Color, Engine, vec, Font, Label, FontUnit, Sound, Loader } from "excalibur";
+import { Actor, CollisionType, Color, Engine, vec, Font, Label, FontUnit, Sound, Loader, ImageSource, SpriteSheet } from "excalibur";
 // 1 - Criar uam instancia de engine, que representa o jogo
 const game = new Engine({
 	width: 800,
 	height: 600, //colocando o tamanho do nosso game
 });
 
-const sound = new Sound('./src/WhatsApp Audio 2024-05-28 at 15.29.42.mpeg','');
+// sons do jogo
+const sound = new Sound('./src/WhatsApp Audio 2024-05-28 at 15.29.42.mpeg');
 const sound2 = new Sound('./som/explosion.wav');
-const loader = new Loader([sound, sound2]);
-
+const sound3 = new Sound('./som/hino-do-botafogo-made-with-Voicemod.mp3')
+const sound4 = new Sound('./som/hino-vasco-da-gama-estourado-earrape-winter-made-with-Voicemod.mp3')
+const loader = new Loader([sound, sound2, sound3, sound4]);
 
 // 2 - Criar barra do player
 //todo objeto,npc,player aqui no excalibur é actor, depois que você digitou o actor dê um enter que ele irá fazer o import automático e depois coloca o parenteses
@@ -16,7 +18,7 @@ const barra = new Actor({
 	x: 150,
 	//altura do game -40
 	y: game.drawHeight - 40,
-	width: 800,
+	width: 200,
 	height: 20,
 	//importando as cores do excalibur
 	color: Color.Chartreuse,
@@ -45,10 +47,27 @@ const bolinha = new Actor({
 
 bolinha.body.collisionType = CollisionType.Passive; //não reage a colisão mas detecta um tipo de colisão
 
+// lsita de cores da bolinha
+let coresbolinha = [
+	Color.Black,
+	Color.Chartreuse,
+	Color.Cyan,
+	Color.Green,
+	Color.Red,
+	Color.Rose,
+	Color.White,
+	Color.Yellow,
+	Color.Orange,
+	Color.Violet,
+	Color.ExcaliburBlue
+]
+
+let numerodecores = coresbolinha.length
+
 //CollisionType.Active //A bolinha reage a colisão
 
 // 5 Criar movimento da bolinha
-const velocidadeBolinha = vec(1500, 1500);
+const velocidadeBolinha = vec(500, 500);
 setTimeout(
 	() => {
 		//espera um determinado tempo para disparar a função
@@ -72,15 +91,12 @@ bolinha.on("postupdate", () => {
 		bolinha.vel.y = velocidadeBolinha.y;
 	}
 
-	  // Se a bolinha colidir com o canto inferior
-	  if (bolinha.pos.y + bolinha.height / 2 > game.drawHeight)// aqui se a altura da bolinha dor menor que 150 significa que ela colidiu 
-	  {
-	    // bolinha.vel.y = -velocidadeBolinha.y
+	// Se a bolinha colidir com o canto inferior
+	if (bolinha.pos.y + bolinha.height / 2 > game.drawHeight)// aqui se a altura da bolinha dor menor que 150 significa que ela colidiu 
+	{
+		// bolinha.vel.y = -velocidadeBolinha.y
 
-
-
-
-	  }
+	}
 });
 
 // adicionando a bolinha
@@ -147,20 +163,6 @@ const textopontos = new Label({
 
 game.add(textopontos)
 
-// const textoPontos = new Text({
-// 	text: "Hello World",
-// 	font: new Font({ size: 20 })
-// })
-
-// const objetoTexto = new Actor({
-// 	x: game.drawWidth - 50,
-// 	y: game.drawHeight - 50
-// })
-
-// game.add(objetoTexto)
-
-// objetoTexto.graphics.use(textoPontos)
-
 let colidindo: boolean = false // vai começar como falso para mostrar que não está colidindo
 //ajuda a detectar as colisoes 
 
@@ -177,6 +179,13 @@ bolinha.on("collisionstart", (event) => {
 		textopontos.text = pontos.toString()
 		// som da bolinha 
 		sound.play(1);
+		// mudar cor da bolinha
+		// bolinha.color = coresbolinha[Math.trunc(Math.random() * numerodecores)]
+		// Math.trunc -> retorna somente a porção de número inteiro
+
+		// pegar a cor do bloco e passar para a bolinha 
+		bolinha.color = event.other.color
+
 	}
 	// Rebater a bolinha Inverter as direções x e y 
 	let interseccao = event.contact.mtv.normalize()
@@ -191,9 +200,11 @@ bolinha.on("collisionstart", (event) => {
 		} else {
 			bolinha.vel.y = -bolinha.vel.y
 		}
-		// mensagem de win quando acabar o jogo
+		// mensagem de win quando chegar a 15 pontos acaba o jogo
 		if (pontos == 15) {
-			alert("win")
+			sound3.play(1)
+			alert("Você venceu!!!")
+			window.location.reload()
 		}
 	}
 
@@ -204,11 +215,11 @@ bolinha.on("collisionend", () => {
 })
 
 bolinha.on("exitviewport", () => {
-	sound2.play(1)
-	alert("Morreu")
+	// sound2.play(1)
+	sound4.play(1)
+	alert("Morreu!!!")
 	window.location.reload()
 })
 
+//iniciando o game, carregando os assest do jogo
 await game.start(loader);
-//iniciando o game
-game.start();
